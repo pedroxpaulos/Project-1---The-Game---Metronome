@@ -1,0 +1,66 @@
+
+/* creating a base of colors to use in the game */
+:root {
+    --background: #3d5a80;
+    --title: #ee6c4d;
+    --secondary: #e0fbfc;
+    --main: #293241;
+    --main-shadow: #98c1d9;
+  }
+
+/* :root {
+--background: #606c38;
+--title: #283618;
+--secondary: #fefae0;
+--main: #dda15e;
+--main-shadow: #dda15e;
+} */
+
+body {
+    background-color: black;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+
+}
+
+#title {
+    font-family: sans-serif;
+    font-size: 15vmax;
+    position: fixed;
+    color: var(--title);
+    text-shadow: 10px 10px 20px;
+}
+#board {
+    background-color: var(--background);
+    height: 100vh;
+    position: relative;
+    
+}
+
+#button {
+    background-color: var(--main);
+    position: absolute;
+    border: 0px solid;
+    border-radius: 15px;
+    box-shadow: 10px 4px 30px var(--main-shadow);
+    text-align: center;
+
+}
+#button:hover {
+    background-color:var(--title);
+    box-shadow: 10px 4px 30px var(--title);
+    transition: 0.7s;
+}
+
+#metronome {
+    background-color: var(--secondary);
+    position: absolute;
+    border: 0px solid;
+    border-radius: 20px;
+    box-shadow: 4px 4px 50px var(--secondary);
+    text-align: center;
+    
+
+}
+
