@@ -15,21 +15,38 @@ function mainClock() {
 }
 
 //function to trigger the lights in the stepSequencer
+//code could be better
 function seqTrigger() {
 	if (counter < 8 && counter !== 0) {
 		metroArray[counter].colorChange();
 		metroArray[counter - 1].colorOriginal();
-		if (answerArray[counter] === 'X') {
+		if (userArray[counter] === 'X' && !playerWon) {
 			keyArray[counter].metroNotePlay();
 		}
-		if (answerArray[counter - 1] === 'X') {
+		if (userArray[counter] === 'X' && playerWon) {
+			keyArray[counter].colorWinner();
+		}
+		//changes the lights to orange when they are in sync with the metronome clock
+		if (userArray[counter - 1] === 'X' && !playerWon) {
 			keyArray[counter - 1].colorChange();
 		}
 	}
 	if (counter === 0) {
+		if (userArray[7] === 'X' && !playerWon) {
+			keyArray[7].colorChange();
+		}
+		if (userArray.toString() === solutionArray.toString()) {
+			playerWon = true;
+		}
 		metroArray[0].colorChange();
 		metroArray[7].colorOriginal();
-		if (answerArray[7] === 'X') {
+		if (userArray[0] === 'X' && !playerWon) {
+			keyArray[0].metroNotePlay();
+		}
+		if (userArray[0] === 'X' && playerWon) {
+			keyArray[0].colorWinner();
+		}
+		if (userArray[7] === 'X' && !playerWon) {
 			keyArray[7].colorChange();
 		}
 	}
@@ -71,7 +88,7 @@ class Button {
 		this.domElement.style.backgroundColor = `var(--secondary)`;
 		this.domElement.style.boxShadow = `4px 4px 50px #ee6c4d`; //unable to use var(--title) here.
 		this.lightOn = true;
-		answerArray[this.id - 1] = 'X';
+		userArray[this.id - 1] = 'X'; // Why -1?
 	}
 	metroNotePlay() {
 		//changes the color to the color in action
@@ -84,7 +101,11 @@ class Button {
 		this.domElement.style.backgroundColor = `var(--main)`;
 		this.domElement.style.boxShadow = `4px 4px 50px white`; //unable to use var(--title) here.
 		this.lightOn = false;
-		answerArray[this.id - 1] = '0';
+		userArray[this.id - 1] = '0';
+	}
+	colorWinner() {
+		this.domElement.style.backgroundColor = `var(--winner)`;
+		this.domElement.style.boxShadow = `4px 4px 50px green`; //unable to use var(--title) here.
 	}
 }
 
@@ -156,6 +177,8 @@ const metroArray = [
 	Metro8,
 ];
 const keyArray = [Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8];
-let answerArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
+let userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
+let solutionArray = ['X', 'X', '0', 'X', 'X', '0', 'X', '0'];
+let playerWon = false;
 
 mainClock();
