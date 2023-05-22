@@ -1,17 +1,17 @@
 let counter = 0;
-
+let bpm = 120;
 //counterclock for the whole game
 function mainClock() {
 	let update = setInterval(() => {
 		if (counter < 9) {
 			seqTrigger();
-			console.log(counter);
+			// console.log(counter);
 			counter++;
 			if (counter === 8) {
 				counter = 0;
 			}
 		}
-	}, 60000 / 110);
+	}, 60000 / bpm);
 }
 
 //function to trigger the lights in the stepSequencer
@@ -19,21 +19,31 @@ function seqTrigger() {
 	if (counter < 8 && counter !== 0) {
 		metroArray[counter].colorChange();
 		metroArray[counter - 1].colorOriginal();
+		if (answerArray[counter] === 'X') {
+			keyArray[counter].metroNotePlay();
+		}
+		if (answerArray[counter - 1] === 'X') {
+			keyArray[counter - 1].colorChange();
+		}
 	}
 	if (counter === 0) {
 		metroArray[0].colorChange();
 		metroArray[7].colorOriginal();
+		if (answerArray[7] === 'X') {
+			keyArray[7].colorChange();
+		}
 	}
 }
 class Button {
 	constructor(id) {
 		this.id = id;
-		this.positionX = 10 * id;
+		this.positionX = 10 * this.id;
 		this.positionY = 30;
 		this.width = 9;
 		this.height = 30;
 		this.lightOn = false;
 		this.domElement = null;
+		this.index = this.id;
 
 		this.createDomElement();
 	}
@@ -45,13 +55,11 @@ class Button {
 		this.domElement.style.height = this.height + 'vh';
 		this.domElement.style.left = this.positionX + 'vw';
 		this.domElement.style.bottom = this.positionY + 'vh';
-		// this.domElement.innerText = `${this.id}`;
 
 		const parentElm = document.getElementById('board');
 		parentElm.appendChild(this.domElement);
 		this.domElement.addEventListener('click', () => {
-			console.log('i was here');
-			if (this.lightOn === true) {
+			if (this.lightOn) {
 				this.colorOriginal();
 			} else {
 				this.colorChange();
@@ -63,12 +71,20 @@ class Button {
 		this.domElement.style.backgroundColor = `var(--secondary)`;
 		this.domElement.style.boxShadow = `4px 4px 50px #ee6c4d`; //unable to use var(--title) here.
 		this.lightOn = true;
+		answerArray[this.id - 1] = 'X';
+	}
+	metroNotePlay() {
+		//changes the color to the color in action
+		this.domElement.style.backgroundColor = `var(--third)`;
+		this.domElement.style.boxShadow = `4px 4px 50px #ee6c4d`; //unable to use var(--title) here.
+		this.lightOn = true;
 	}
 	colorOriginal() {
 		//changes the color to the color in action
 		this.domElement.style.backgroundColor = `var(--main)`;
 		this.domElement.style.boxShadow = `4px 4px 50px white`; //unable to use var(--title) here.
 		this.lightOn = false;
+		answerArray[this.id - 1] = '0';
 	}
 }
 
@@ -140,5 +156,6 @@ const metroArray = [
 	Metro8,
 ];
 const keyArray = [Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8];
+let answerArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
 
 mainClock();
