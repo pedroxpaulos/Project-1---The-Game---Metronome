@@ -1,8 +1,10 @@
 let counter = 0;
 
+//counterclock for the whole game
 function mainClock() {
 	let update = setInterval(() => {
 		if (counter < 9) {
+			seqTrigger();
 			console.log(counter);
 			counter++;
 			if (counter === 8) {
@@ -12,6 +14,17 @@ function mainClock() {
 	}, 60000 / 110);
 }
 
+//function to trigger the lights in the stepSequencer
+function seqTrigger() {
+	if (counter < 8 && counter !== 0) {
+		metroArray[counter].colorChange();
+		metroArray[counter - 1].colorOriginal();
+	}
+	if (counter === 0) {
+		metroArray[0].colorChange();
+		metroArray[7].colorOriginal();
+	}
+}
 class Button {
 	constructor(id) {
 		this.id = id;
@@ -126,5 +139,6 @@ const metroArray = [
 	Metro7,
 	Metro8,
 ];
+const keyArray = [Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8];
 
 mainClock();
