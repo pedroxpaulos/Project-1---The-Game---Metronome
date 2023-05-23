@@ -1,10 +1,13 @@
 let counter = 0;
-let bpm = 120;
-//counterclock for the whole game
+let bpm = 360;
+let level = 3;
+
+//clock for the whole game
 function mainClock() {
 	let update = setInterval(() => {
 		if (counter < 9) {
 			seqTrigger();
+			metroSample();
 			// console.log(counter);
 			counter++;
 			if (counter === 8) {
@@ -14,9 +17,71 @@ function mainClock() {
 	}, 60000 / bpm);
 }
 
+// click, click, it's the sound of the metronome.
+
+function metroSample() {
+	soundStr = `/sounds/click.wav`;
+	sound = new Audio(soundStr);
+	sound.play();
+}
+
+function samplePipeline(soundVar) {
+	switch (soundVar) {
+		case 0:
+			var snd1 = new Audio();
+			var src1 = document.createElement('source');
+			src1.type = 'audio/mpeg';
+			src1.src = gameLevels[0].sample[counter];
+			snd1.appendChild(src1);
+			snd1.play();
+			break;
+
+		case 1:
+			var snd2 = new Audio();
+			var src2 = document.createElement('source');
+			src2.type = 'audio/mpeg';
+			src2.src = gameLevels[1].sample[counter];
+			snd2.appendChild(src2);
+			snd2.play();
+			break;
+
+		case 2:
+			var snd3 = new Audio();
+			var src3 = document.createElement('source');
+			src3.type = 'audio/mpeg';
+			src3.src = gameLevels[2].sample[counter];
+			snd3.appendChild(src3);
+			snd3.play();
+			break;
+
+		case 3:
+			var snd4 = new Audio();
+			var src4 = document.createElement('source');
+			src4.type = 'audio/mpeg';
+			src4.src = gameLevels[3].sample[counter];
+			snd4.appendChild(src4);
+			snd4.play();
+			break;
+	}
+}
+function userSample() {
+	for (i = 0; i <= level; i++) {
+		if (i < level && gameLevels[i].solution[counter] == 'X') {
+			samplePipeline(i);
+		}
+		if (i === level && userArray[counter] == 'X') {
+			// soundStr = gameLevels[level].sample[counter]; //samples change from level to level and space in the index
+			// sound = new Audio(soundStr);
+			// sound.play();
+			samplePipeline(i);
+		}
+	}
+}
+
 //function to trigger the lights in the stepSequencer
 //code could be better
 function seqTrigger() {
+	userSample();
 	if (counter < 8 && counter !== 0) {
 		metroArray[counter].colorChange();
 		metroArray[counter - 1].colorOriginal();
@@ -35,7 +100,7 @@ function seqTrigger() {
 		if (userArray[7] === 'X' && !playerWon) {
 			keyArray[7].colorChange();
 		}
-		if (userArray.toString() === solutionArray.toString()) {
+		if (userArray.toString() === gameLevels[level].solution.toString()) {
 			playerWon = true;
 		}
 		metroArray[0].colorChange();
@@ -51,6 +116,74 @@ function seqTrigger() {
 		}
 	}
 }
+
+const gameLevels = [
+	{
+		level: 1,
+		description: "Let's start with a sample!",
+		sample: [
+			'/sounds/stab1.mp3',
+			'/sounds/stabX.mp3',
+			'/sounds/stab1.mp3',
+			'/sounds/stab2.mp3',
+			'/sounds/stab2.mp3',
+			'/sounds/stab1.mp3',
+			'/sounds/stab3.mp3',
+			'/sounds/stab4.mp3',
+		],
+		solution: ['X', '0', 'X', 'X', 'X', 'X', 'X', 'X'],
+		soundOn: false,
+	},
+	{
+		level: 2,
+		description: 'Time to hit that bass!',
+		sample: [
+			'/sounds/bass1.mp3',
+			'/sounds/bass1.mp3',
+			'/sounds/bassX.mp3',
+			'/sounds/bass1.mp3',
+			'/sounds/bass2.mp3',
+			'/sounds/bass2.mp3',
+			'/sounds/bassX.mp3',
+			'/sounds/bassX.mp3',
+		],
+		solution: ['X', 'X', '0', 'X', 'X', 'X', '0', '0'],
+		soundOn: false,
+	},
+	{
+		level: 3,
+		description: 'Kick it!',
+		sample: [
+			'/sounds/kick.mp3',
+			'/sounds/kick.mp3',
+			'/sounds/kickX.mp3',
+			'/sounds/kick.mp3',
+			'/sounds/kickX.mp3',
+			'/sounds/kickX.mp3',
+			'/sounds/kick.mp3',
+			'/sounds/kickX.mp3',
+		],
+		solution: ['X', 'X', '0', 'X', '0', '0', 'X', '0'],
+		soundOn: false,
+	},
+	{
+		level: 4,
+		description: 'What about the snare?',
+		sample: [
+			'/sounds/snareX.mp3',
+			'/sounds/snareX.mp3',
+			'/sounds/snare.mp3',
+			'/sounds/snareX.mp3',
+			'/sounds/snareX.mp3',
+			'/sounds/snare.mp3',
+			'/sounds/snareX.mp3',
+			'/sounds/snareX.mp3',
+		],
+		solution: ['0', '0', 'X', '0', '0', 'X', '0', '0'],
+		soundOn: false,
+	},
+];
+
 class Button {
 	constructor(id) {
 		this.id = id;
@@ -178,7 +311,6 @@ const metroArray = [
 ];
 const keyArray = [Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8];
 let userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
-let solutionArray = ['X', 'X', '0', 'X', 'X', '0', 'X', '0'];
 let playerWon = false;
 
 mainClock();
