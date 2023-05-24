@@ -1,30 +1,149 @@
 let counter = 0;
 let bpm = 360;
-let level = 3;
+let level = 0;
+let intro = true;
+let introCounter = 0;
+let playerWon = false;
+let hearSamples = true;
+let greenButtonCounter = 0;
 
 //clock for the whole game
 function mainClock() {
 	let update = setInterval(() => {
 		if (counter < 9) {
 			seqTrigger();
-			metroSample();
-			// console.log(counter);
-			counter++;
-			if (counter === 8) {
-				counter = 0;
-			}
+		}
+		// metroSample();
+		counter++;
+		if (counter === 8) {
+			counter = 0;
 		}
 	}, 60000 / bpm);
 }
 
-// click, click, it's the sound of the metronome.
+//game main level sequencer
+function seqTrigger() {
+	if (intro == true) {
+		introMode();
+	} else {
+		gameLevel();
+	}
+	userSample();
+	metroLights();
+}
 
+//game level
+
+function gameLevel() {
+	introCounter = 0;
+	if (counter < 8 && counter !== 0) {
+		if (userArray[counter] === 'X' && !playerWon) {
+			keyArray[counter].metroNotePlay();
+		}
+		if (userArray[counter] === 'X' && playerWon) {
+			keyArray[counter].colorWinner();
+		}
+		//changes the lights to orange when they are in sync with the metronome clock
+		if (userArray[counter - 1] === 'X' && !playerWon) {
+			keyArray[counter - 1].colorChange();
+		}
+		if (userArray[7] === 'X' && !playerWon) {
+			keyArray[7].colorChange();
+		}
+		if (userArray.toString() === gameLevels[level].solution.toString()) {
+			playerWon = true;
+		}
+	}
+	if (counter === 0) {
+		if (userArray[0] === 'X' && !playerWon) {
+			keyArray[0].metroNotePlay();
+		}
+		if (userArray[0] === 'X' && playerWon) {
+			keyArray[0].colorWinner();
+		}
+		if (userArray[7] === 'X' && !playerWon) {
+			keyArray[7].colorChange();
+		}
+	}
+	if (greenButtonCounter > 16) {
+		intro = true;
+		level++;
+		userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
+		gameReset();
+	}
+}
+//metronome lights
+function metroLights() {
+	if (counter < 8 && counter !== 0) {
+		metroArray[counter].colorChange(); //color change on the metronome line
+		metroArray[counter - 1].colorOriginal();
+	}
+	if (counter < 8 && counter !== 0) {
+		metroArray[counter].colorChange(); //color change on the metronome line
+		metroArray[counter - 1].colorOriginal();
+	}
+	if (counter == 0) {
+		metroArray[7].colorOriginal();
+	}
+}
+//click, click, it's the sound of the metronome.
 function metroSample() {
 	soundStr = `/sounds/click.wav`;
 	sound = new Audio(soundStr);
 	sound.play();
 }
 
+//plays the intro color
+function levelIntro() {
+	if ((intro = true)) {
+		keyArray[introCounter].colorIntro();
+	}
+}
+//intro color animation
+function introMode() {
+	greenButtonCounter = 0;
+
+	metroLights();
+	if (intro === true) {
+		if (counter === 7 && introCounter < 8) {
+			levelIntro();
+			introCounter++;
+		}
+		if (introCounter === 8) {
+			introCounter++;
+		}
+		if (introCounter === 9) {
+			gameReset();
+			intro = false;
+		}
+	}
+}
+//resets the buttons to their original position
+function gameReset() {
+	for (let i = 0; i <= 7; i++) {
+		keyArray[i].colorOriginal();
+	}
+}
+//plays the level solution so the player can play it
+
+//plays sample in a bar
+function userSample() {
+	for (i = 0; i <= level; i++) {
+		if ((intro == true) & (gameLevels[i].solution[counter] == 'X')) {
+			samplePipeline(i);
+		}
+		if (intro == false && i < level && gameLevels[i].solution[counter] == 'X') {
+			samplePipeline(i);
+		}
+		if (intro == false && i === level && userArray[counter] == 'X') {
+			// soundStr = gameLevels[level].sample[counter]; //samples change from level to level and space in the index
+			// sound = new Audio(soundStr);
+			// sound.play();
+			samplePipeline(i);
+		}
+	}
+}
+//pipeline that allows multiple samples playing at same time
 function samplePipeline(soundVar) {
 	switch (soundVar) {
 		case 0:
@@ -62,58 +181,6 @@ function samplePipeline(soundVar) {
 			snd4.appendChild(src4);
 			snd4.play();
 			break;
-	}
-}
-function userSample() {
-	for (i = 0; i <= level; i++) {
-		if (i < level && gameLevels[i].solution[counter] == 'X') {
-			samplePipeline(i);
-		}
-		if (i === level && userArray[counter] == 'X') {
-			// soundStr = gameLevels[level].sample[counter]; //samples change from level to level and space in the index
-			// sound = new Audio(soundStr);
-			// sound.play();
-			samplePipeline(i);
-		}
-	}
-}
-
-//function to trigger the lights in the stepSequencer
-//code could be better
-function seqTrigger() {
-	userSample();
-	if (counter < 8 && counter !== 0) {
-		metroArray[counter].colorChange();
-		metroArray[counter - 1].colorOriginal();
-		if (userArray[counter] === 'X' && !playerWon) {
-			keyArray[counter].metroNotePlay();
-		}
-		if (userArray[counter] === 'X' && playerWon) {
-			keyArray[counter].colorWinner();
-		}
-		//changes the lights to orange when they are in sync with the metronome clock
-		if (userArray[counter - 1] === 'X' && !playerWon) {
-			keyArray[counter - 1].colorChange();
-		}
-	}
-	if (counter === 0) {
-		if (userArray[7] === 'X' && !playerWon) {
-			keyArray[7].colorChange();
-		}
-		if (userArray.toString() === gameLevels[level].solution.toString()) {
-			playerWon = true;
-		}
-		metroArray[0].colorChange();
-		metroArray[7].colorOriginal();
-		if (userArray[0] === 'X' && !playerWon) {
-			keyArray[0].metroNotePlay();
-		}
-		if (userArray[0] === 'X' && playerWon) {
-			keyArray[0].colorWinner();
-		}
-		if (userArray[7] === 'X' && !playerWon) {
-			keyArray[7].colorChange();
-		}
 	}
 }
 
@@ -239,6 +306,12 @@ class Button {
 	colorWinner() {
 		this.domElement.style.backgroundColor = `var(--winner)`;
 		this.domElement.style.boxShadow = `4px 4px 50px green`; //unable to use var(--title) here.
+		greenButtonCounter++;
+		console.log(greenButtonCounter);
+	}
+	colorIntro() {
+		this.domElement.style.backgroundColor = `var(--title`;
+		this.domElement.style.boxShadow = `4px 4px 50px red`; //unable to use var(--title) here.
 	}
 }
 
@@ -311,6 +384,5 @@ const metroArray = [
 ];
 const keyArray = [Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8];
 let userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
-let playerWon = false;
 
 mainClock();
