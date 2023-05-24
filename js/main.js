@@ -21,8 +21,6 @@ function mainClock() {
 	}, 60000 / bpm);
 }
 
-//starts the game and sets the board
-
 //game main level sequencer
 function seqTrigger() {
 	if (intro == true) {
@@ -35,7 +33,6 @@ function seqTrigger() {
 }
 
 //game level
-
 function gameLevel() {
 	introCounter = 0;
 	if (counter < 8 && counter !== 0) {
@@ -73,6 +70,9 @@ function gameLevel() {
 		userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
 		playerWon = false;
 		gameReset();
+		if (level === 4) {
+			const theEnd = new endOfGame();
+		}
 	}
 }
 //metronome lights
@@ -95,7 +95,6 @@ function metroSample() {
 	sound = new Audio(soundStr);
 	sound.play();
 }
-
 //plays the intro color
 function levelIntro() {
 	if ((intro = true)) {
@@ -127,12 +126,13 @@ function gameReset() {
 		keyArray[i].colorOriginal();
 	}
 }
-//plays the level solution so the player can play it
-
 //plays sample in a bar
 function userSample() {
 	for (i = 0; i <= level; i++) {
-		if ((intro == true) & (gameLevels[i].solution[counter] == 'X')) {
+		if (
+			(intro == true) &
+			(gameLevels[i].solution[counter] == 'X' && introCounter >= 4)
+		) {
 			samplePipeline(i);
 		}
 		if (intro == false && i < level && gameLevels[i].solution[counter] == 'X') {
@@ -145,13 +145,24 @@ function userSample() {
 			samplePipeline(i);
 		}
 	}
+	if (
+		(intro == true) &
+		(gameLevels[level].solution[counter] == 'X' && introCounter < 4)
+	) {
+		let snd1 = new Audio();
+		let src1 = document.createElement('source');
+		src1.type = 'audio/mpeg';
+		src1.src = gameLevels[level].sample[counter];
+		snd1.appendChild(src1);
+		snd1.play();
+	}
 }
 //pipeline that allows multiple samples playing at same time
 function samplePipeline(soundVar) {
 	switch (soundVar) {
 		case 0:
-			var snd1 = new Audio();
-			var src1 = document.createElement('source');
+			let snd1 = new Audio();
+			let src1 = document.createElement('source');
 			src1.type = 'audio/mpeg';
 			src1.src = gameLevels[0].sample[counter];
 			snd1.appendChild(src1);
@@ -159,8 +170,8 @@ function samplePipeline(soundVar) {
 			break;
 
 		case 1:
-			var snd2 = new Audio();
-			var src2 = document.createElement('source');
+			let snd2 = new Audio();
+			let src2 = document.createElement('source');
 			src2.type = 'audio/mpeg';
 			src2.src = gameLevels[1].sample[counter];
 			snd2.appendChild(src2);
@@ -168,8 +179,8 @@ function samplePipeline(soundVar) {
 			break;
 
 		case 2:
-			var snd3 = new Audio();
-			var src3 = document.createElement('source');
+			let snd3 = new Audio();
+			let src3 = document.createElement('source');
 			src3.type = 'audio/mpeg';
 			src3.src = gameLevels[2].sample[counter];
 			snd3.appendChild(src3);
@@ -177,8 +188,8 @@ function samplePipeline(soundVar) {
 			break;
 
 		case 3:
-			var snd4 = new Audio();
-			var src4 = document.createElement('source');
+			let snd4 = new Audio();
+			let src4 = document.createElement('source');
 			src4.type = 'audio/mpeg';
 			src4.src = gameLevels[3].sample[counter];
 			snd4.appendChild(src4);
@@ -187,6 +198,7 @@ function samplePipeline(soundVar) {
 	}
 }
 
+//object with info from all levels
 const gameLevels = [
 	{
 		level: 1,
@@ -279,9 +291,9 @@ class Button {
 		const parentElm = document.getElementById('board');
 		parentElm.appendChild(this.domElement);
 		this.domElement.addEventListener('click', () => {
-			if (this.lightOn) {
+			if (this.lightOn && intro === false && !playerWon) {
 				this.colorOriginal();
-			} else {
+			} else if (!this.ligthOn && intro == false && !playerWon) {
 				this.colorChange();
 			}
 		});
@@ -383,6 +395,41 @@ class StartButton {
 		this.domElement.style.left = this.positionX + 'vw';
 		this.domElement.style.bottom = this.positionY + 'vh';
 		this.domElement.innerHTML = `<p>Welcome to Metronome.</p> <p>Click to start the beat.</p>`;
+
+		//step3: append to the dom: `parentElm.appendChild()`
+		const parentElm = document.getElementById('board');
+		parentElm.appendChild(this.domElement);
+		this.domElement.addEventListener('click', () => {
+			parentElm.removeChild(this.domElement);
+			mainClock();
+		});
+	}
+}
+
+class endOfGame {
+	constructor(id) {
+		this.id = id;
+		this.positionX = 0;
+		this.positionY = 0;
+		this.width = 100;
+		this.height = 100;
+		this.lightOn = false;
+		this.domElement = null;
+
+		this.createDomElement();
+	}
+
+	createDomElement() {
+		// step1: create the element
+		this.domElement = document.createElement('div');
+
+		// step2: add content or modify (ex. innerHTML...)
+		this.domElement.id = `start-button`;
+		this.domElement.style.width = this.width + 'vw';
+		this.domElement.style.height = this.height + 'vh';
+		this.domElement.style.left = this.positionX + 'vw';
+		this.domElement.style.bottom = this.positionY + 'vh';
+		this.domElement.innerHTML = `<p>You are impressive.</p> <p>You've just made your own song!</p>`;
 
 		//step3: append to the dom: `parentElm.appendChild()`
 		const parentElm = document.getElementById('board');
