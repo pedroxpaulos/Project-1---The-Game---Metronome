@@ -21,6 +21,8 @@ function mainClock() {
 	}, 60000 / bpm);
 }
 
+//starts the game and sets the board
+
 //game main level sequencer
 function seqTrigger() {
 	if (intro == true) {
@@ -356,6 +358,41 @@ class Metronome {
 	}
 }
 
+class StartButton {
+	constructor(id) {
+		this.id = id;
+		this.positionX = 0;
+		this.positionY = 0;
+		this.width = 100;
+		this.height = 100;
+		this.lightOn = false;
+		this.domElement = null;
+
+		this.createDomElement();
+	}
+
+	createDomElement() {
+		// step1: create the element
+		this.domElement = document.createElement('div');
+
+		// step2: add content or modify (ex. innerHTML...)
+		this.domElement.id = `start-button`;
+		this.domElement.style.width = this.width + 'vw';
+		this.domElement.style.height = this.height + 'vh';
+		this.domElement.style.left = this.positionX + 'vw';
+		this.domElement.style.bottom = this.positionY + 'vh';
+		this.domElement.innerHTML = `<p>Welcome to Metronome.</p> <p>Click to start the beat.</p>`;
+
+		//step3: append to the dom: `parentElm.appendChild()`
+		const parentElm = document.getElementById('board');
+		parentElm.appendChild(this.domElement);
+		this.domElement.addEventListener('click', () => {
+			parentElm.removeChild(this.domElement);
+			mainClock();
+		});
+	}
+}
+
 const Key1 = new Button(1);
 const Key2 = new Button(2);
 const Key3 = new Button(3);
@@ -384,5 +421,4 @@ const metroArray = [
 ];
 const keyArray = [Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8];
 let userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
-
-mainClock();
+const play = new StartButton();
