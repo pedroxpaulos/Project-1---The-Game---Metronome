@@ -71,6 +71,7 @@ function gameLevel() {
 		intro = true;
 		level++;
 		userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
+		playerWon = false;
 		gameReset();
 	}
 }
