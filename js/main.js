@@ -2,10 +2,12 @@ let counter = 0;
 let bpm = 360;
 let level = 0;
 let intro = true;
+let song = 0;
 let introCounter = 0;
 let playerWon = false;
-let hearSamples = true;
+let hearSamples = false;
 let greenButtonCounter = 0;
+let demoCounter = 0;
 
 //clock for the whole game
 function mainClock() {
@@ -25,6 +27,8 @@ function mainClock() {
 function seqTrigger() {
 	if (intro == true) {
 		introMode();
+	} else if (hearSamples == true) {
+		songDemo();
 	} else {
 		gameLevel();
 	}
@@ -32,9 +36,26 @@ function seqTrigger() {
 	metroLights();
 }
 
+function songDemo() {
+	level = 3;
+	if (counter === 0 && demoCounter === 0) {
+		demoCounter++;
+	}
+	if (demoCounter > 0) {
+		demoCounter++;
+	}
+	console.log('IN THE MIX' + demoCounter);
+	if (demoCounter >= 14) {
+		level = 0;
+		hearSamples = false;
+		song++;
+		intro = true;
+	}
+}
 //game level
 function gameLevel() {
 	introCounter = 0;
+	demoCounter = 0;
 	if (counter < 8 && counter !== 0) {
 		if (userArray[counter] === 'X' && !playerWon) {
 			keyArray[counter].metroNotePlay();
@@ -49,7 +70,9 @@ function gameLevel() {
 		if (userArray[7] === 'X' && !playerWon) {
 			keyArray[7].colorChange();
 		}
-		if (userArray.toString() === gameLevels[level].solution.toString()) {
+		if (
+			userArray.toString() === levelData[song].info[level].solution.toString()
+		) {
 			playerWon = true;
 		}
 	}
@@ -64,13 +87,19 @@ function gameLevel() {
 			keyArray[7].colorChange();
 		}
 	}
-	if (greenButtonCounter > 16) {
-		intro = true;
+	if (greenButtonCounter > 16 && counter == 0) {
+		if (level < 3) {
+			intro = true;
+		}
 		level++;
 		userArray = ['0', '0', '0', '0', '0', '0', '0', '0'];
 		playerWon = false;
 		gameReset();
-		if (level === 4) {
+		if (level === 4 && song < 3) {
+			intro = false;
+			hearSamples = true;
+		}
+		if (level === 4 && song === 2) {
 			const theEnd = new endOfGame();
 		}
 	}
@@ -91,7 +120,7 @@ function metroLights() {
 }
 //click, click, it's the sound of the metronome.
 function metroSample() {
-	soundStr = `https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/click.wav`;
+	soundStr = `./sounds/click.wav`;
 	sound = new Audio(soundStr);
 	sound.play();
 }
@@ -104,10 +133,8 @@ function levelIntro() {
 //intro color animation
 function introMode() {
 	greenButtonCounter = 0;
-
-	metroLights();
 	if (intro === true) {
-		if (counter === 7 && introCounter < 8) {
+		if (counter === 0 && introCounter < 8) {
 			levelIntro();
 			introCounter++;
 		}
@@ -130,29 +157,39 @@ function gameReset() {
 function userSample() {
 	for (i = 0; i <= level; i++) {
 		if (
-			(intro == true) &
-			(gameLevels[i].solution[counter] == 'X' && introCounter >= 4)
+			hearSamples == true &&
+			levelData[song].info[i].solution[counter] == 'X' &&
+			level < 4
 		) {
-			samplePipeline(i);
+			keyArray[counter].songMode();
 		}
-		if (intro == false && i < level && gameLevels[i].solution[counter] == 'X') {
-			samplePipeline(i);
-		}
+		// if (
+		// 	intro == false &&
+		// 	i < level &&
+		// 	levelData[song].info[i].solution[counter] == 'X'
+		// ) {
+		// 	samplePipeline(i);
+		// }
 		if (intro == false && i === level && userArray[counter] == 'X') {
-			// soundStr = gameLevels[level].sample[counter]; //samples change from level to level and space in the index
+			// soundStr = levelData[song].info[level].sample[counter]; //samples change from level to level and space in the index
 			// sound = new Audio(soundStr);
 			// sound.play();
-			samplePipeline(i);
+			let snd1 = new Audio();
+			let src1 = document.createElement('source');
+			src1.type = 'audio/mpeg';
+			src1.src = levelData[song].info[level].sample[counter];
+			snd1.appendChild(src1);
+			snd1.play();
 		}
 	}
 	if (
 		(intro == true) &
-		(gameLevels[level].solution[counter] == 'X' && introCounter < 4)
+		(levelData[song].info[level].solution[counter] == 'X')
 	) {
 		let snd1 = new Audio();
 		let src1 = document.createElement('source');
 		src1.type = 'audio/mpeg';
-		src1.src = gameLevels[level].sample[counter];
+		src1.src = levelData[song].info[level].sample[counter];
 		snd1.appendChild(src1);
 		snd1.play();
 	}
@@ -164,7 +201,7 @@ function samplePipeline(soundVar) {
 			let snd1 = new Audio();
 			let src1 = document.createElement('source');
 			src1.type = 'audio/mpeg';
-			src1.src = gameLevels[0].sample[counter];
+			src1.src = levelData[song].info[0].sample[counter];
 			snd1.appendChild(src1);
 			snd1.play();
 			break;
@@ -173,7 +210,7 @@ function samplePipeline(soundVar) {
 			let snd2 = new Audio();
 			let src2 = document.createElement('source');
 			src2.type = 'audio/mpeg';
-			src2.src = gameLevels[1].sample[counter];
+			src2.src = levelData[song].info[1].sample[counter];
 			snd2.appendChild(src2);
 			snd2.play();
 			break;
@@ -182,7 +219,7 @@ function samplePipeline(soundVar) {
 			let snd3 = new Audio();
 			let src3 = document.createElement('source');
 			src3.type = 'audio/mpeg';
-			src3.src = gameLevels[2].sample[counter];
+			src3.src = levelData[song].info[2].sample[counter];
 			snd3.appendChild(src3);
 			snd3.play();
 			break;
@@ -191,7 +228,7 @@ function samplePipeline(soundVar) {
 			let snd4 = new Audio();
 			let src4 = document.createElement('source');
 			src4.type = 'audio/mpeg';
-			src4.src = gameLevels[3].sample[counter];
+			src4.src = levelData[song].info[3].sample[counter];
 			snd4.appendChild(src4);
 			snd4.play();
 			break;
@@ -199,70 +236,213 @@ function samplePipeline(soundVar) {
 }
 
 //object with info from all levels
-const gameLevels = [
+const levelData = [
 	{
-		level: 1,
-		description: "Let's start with a sample!",
-		sample: [
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab1.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stabX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab1.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab2.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab2.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab1.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab3.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/stab4.mp3',
+		music: 1,
+		info: [
+			{
+				level: 1,
+				description: "Let's start with a bass!",
+				sample: [
+					'./sounds/song1/bass1.mp3',
+					'./sounds/song1/bassX.mp3',
+					'./sounds/song1/bass1.mp3',
+					'./sounds/song1/bassX.mp3',
+					'./sounds/song1/bassX.mp3',
+					'./sounds/song1/bass2.mp3',
+					'./sounds/song1/bass3.mp3',
+					'./sounds/song1/bass4.mp3',
+				],
+				solution: ['X', '0', 'X', '0', '0', 'X', 'X', 'X'],
+				soundOn: false,
+			},
+			{
+				level: 2,
+				description: 'Time for some melody!',
+				sample: [
+					'./sounds/song1/lead1.mp3',
+					'./sounds/song1/lead2.mp3',
+					'./sounds/song1/lead3.mp3',
+					'./sounds/song1/lead4.mp3',
+					'./sounds/song1/leadX.mp3',
+					'./sounds/song1/lead2.mp3',
+					'./sounds/song1/lead3.mp3',
+					'./sounds/song1/lead4.mp3',
+				],
+				solution: ['X', 'X', 'X', 'X', '0', 'X', 'X', 'X'],
+				soundOn: false,
+			},
+			{
+				level: 3,
+				description: 'Ride along!',
+				sample: [
+					'./sounds/song1/ride.mp3',
+					'./sounds/song1/ride.mp3',
+					'./sounds/song1/rideX.mp3',
+					'./sounds/song1/ride.mp3',
+					'./sounds/song1/ride.mp3',
+					'./sounds/song1/ride.mp3',
+					'./sounds/song1/rideX.mp3',
+					'./sounds/song1/ride.mp3',
+				],
+				solution: ['X', 'X', '0', 'X', 'X', 'X', '0', 'X'],
+				soundOn: false,
+			},
+			{
+				level: 4,
+				description: 'A dreamy pad?',
+				sample: [
+					'./sounds/song1/pad1.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/pad1.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/pad1.mp3',
+					'./sounds/song1/padX.mp3',
+				],
+				solution: ['X', '0', '0', 'X', '0', '0', 'X', '0'],
+				soundOn: false,
+			},
 		],
-		solution: ['X', '0', 'X', 'X', 'X', 'X', 'X', 'X'],
-		soundOn: false,
 	},
 	{
-		level: 2,
-		description: 'Time to hit that bass!',
-		sample: [
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bass1.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bass1.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bassX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bass1.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bass2.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bass2.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bassX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/bassX.mp3',
+		music: 2,
+		info: [
+			{
+				level: 1,
+				description: 'This one is easy!',
+				sample: [
+					'./sounds/song2/lead1.mp3',
+					'./sounds/song2/lead1.mp3',
+					'./sounds/song2/lead1.mp3',
+					'./sounds/song2/lead2.mp3',
+					'./sounds/song2/lead2.mp3',
+					'./sounds/song2/lead1.mp3',
+					'./sounds/song2/lead3.mp3',
+					'./sounds/song2/lead3.mp3',
+				],
+				solution: ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+				soundOn: false,
+			},
+			{
+				level: 2,
+				description: 'Time to hit that bass!',
+				sample: [
+					'./sounds/song2/pad1.mp3',
+					'./sounds/song2/pad1.mp3',
+					'./sounds/song2/pad2.mp3',
+					'./sounds/song2/padX.mp3',
+					'./sounds/song2/padX.mp3',
+					'./sounds/song2/pad1.mp3',
+					'./sounds/song2/pad3.mp3',
+					'./sounds/song2/padX.mp3',
+				],
+				solution: ['X', 'X', 'X', '0', '0', 'X', 'X', '0'],
+				soundOn: false,
+			},
+			{
+				level: 3,
+				description: 'Kick it!',
+				sample: [
+					'./sounds/song2/bass1.mp3',
+					'./sounds/song2/bassX.mp3',
+					'./sounds/song2/bassX.mp3',
+					'./sounds/song2/bass2.mp3',
+					'./sounds/song2/bassX.mp3',
+					'./sounds/song2/bassX.mp3',
+					'./sounds/song2/bass3.mp3',
+					'./sounds/song2/bassX.mp3',
+				],
+				solution: ['X', '0', '0', 'X', '0', '0', 'X', '0'],
+				soundOn: false,
+			},
+			{
+				level: 4,
+				description: 'What about the snare?',
+				sample: [
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+					'./sounds/song2/kick.mp3',
+				],
+				solution: ['X', '0', 'X', '0', 'X', '0', 'X', '0'],
+				soundOn: false,
+			},
 		],
-		solution: ['X', 'X', '0', 'X', 'X', 'X', '0', '0'],
-		soundOn: false,
 	},
 	{
-		level: 3,
-		description: 'Kick it!',
-		sample: [
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kick.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kick.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kickX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kick.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kickX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kickX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kick.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/kickX.mp3',
+		music: 3,
+		info: [
+			{
+				level: 1,
+				description: "Let's start with a sample!",
+				sample: [
+					'./sounds/song3/stab1.mp3',
+					'./sounds/song3/stabX.mp3',
+					'./sounds/song3/stab1.mp3',
+					'./sounds/song3/stab2.mp3',
+					'./sounds/song3/stab2.mp3',
+					'./sounds/song3/stab1.mp3',
+					'./sounds/song3/stab3.mp3',
+					'./sounds/song3/stab4.mp3',
+				],
+				solution: ['X', '0', 'X', 'X', 'X', 'X', 'X', 'X'],
+				soundOn: false,
+			},
+			{
+				level: 2,
+				description: 'Time to hit that bass!',
+				sample: [
+					'./sounds/song3/bass1.mp3',
+					'./sounds/song3/bass1.mp3',
+					'./sounds/song3/bassX.mp3',
+					'./sounds/song3/bass1.mp3',
+					'./sounds/song3/bass2.mp3',
+					'./sounds/song3/bass2.mp3',
+					'./sounds/song3/bassX.mp3',
+					'./sounds/song3/bassX.mp3',
+				],
+				solution: ['X', 'X', '0', 'X', 'X', 'X', '0', '0'],
+				soundOn: false,
+			},
+			{
+				level: 3,
+				description: 'Kick it!',
+				sample: [
+					'./sounds/song3/kick.mp3',
+					'./sounds/song3/kick.mp3',
+					'./sounds/song3/kickX.mp3',
+					'./sounds/song3/kick.mp3',
+					'./sounds/song3/kickX.mp3',
+					'./sounds/song3/kickX.mp3',
+					'./sounds/song3/kick.mp3',
+					'./sounds/song3/kickX.mp3',
+				],
+				solution: ['X', 'X', '0', 'X', '0', '0', 'X', '0'],
+				soundOn: false,
+			},
+			{
+				level: 4,
+				description: 'What about the snare?',
+				sample: [
+					'./sounds/song3/snareX.mp3',
+					'./sounds/song3/snareX.mp3',
+					'./sounds/song3/snare.mp3',
+					'./sounds/song3/snareX.mp3',
+					'./sounds/song3/snareX.mp3',
+					'./sounds/song3/snare.mp3',
+					'./sounds/song3/snareX.mp3',
+					'./sounds/song3/snareX.mp3',
+				],
+				solution: ['0', '0', 'X', '0', '0', 'X', '0', '0'],
+				soundOn: false,
+			},
 		],
-		solution: ['X', 'X', '0', 'X', '0', '0', 'X', '0'],
-		soundOn: false,
-	},
-	{
-		level: 4,
-		description: 'What about the snare?',
-		sample: [
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snareX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snareX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snare.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snareX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snareX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snare.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snareX.mp3',
-			'https://pedroxpaulos.github.io/Project-1---The-Game---Metronome/sounds/snareX.mp3',
-		],
-		solution: ['0', '0', 'X', '0', '0', 'X', '0', '0'],
-		soundOn: false,
 	},
 ];
 
@@ -325,8 +505,12 @@ class Button {
 		console.log(greenButtonCounter);
 	}
 	colorIntro() {
-		this.domElement.style.backgroundColor = `var(--title`;
+		this.domElement.style.backgroundColor = `var(--title)`;
 		this.domElement.style.boxShadow = `4px 4px 50px red`; //unable to use var(--title) here.
+	}
+	songMode() {
+		this.domElement.style.backgroundColor = `var(--intro)`;
+		this.domElement.style.boxShadow = `4px 4px 50px bluse`; //unable to use var(--title) here.
 	}
 }
 
@@ -429,7 +613,7 @@ class endOfGame {
 		this.domElement.style.height = this.height + 'vh';
 		this.domElement.style.left = this.positionX + 'vw';
 		this.domElement.style.bottom = this.positionY + 'vh';
-		this.domElement.innerHTML = `<p>You are impressive.</p> <p>You've just made your own song!</p>`;
+		this.domElement.innerHTML = `<p>Now go make your own beat.</p>`;
 
 		//step3: append to the dom: `parentElm.appendChild()`
 		const parentElm = document.getElementById('board');
