@@ -36,6 +36,7 @@ function seqTrigger() {
 	metroLights();
 }
 
+//a break between levels
 function songDemo() {
 	level = 3;
 	if (counter === 0 && demoCounter === 0) {
@@ -44,7 +45,6 @@ function songDemo() {
 	if (demoCounter > 0) {
 		demoCounter++;
 	}
-	console.log('IN THE MIX' + demoCounter);
 	if (demoCounter >= 14) {
 		level = 0;
 		hearSamples = false;
@@ -244,16 +244,16 @@ const levelData = [
 				level: 1,
 				description: "Let's start with a bass!",
 				sample: [
-					'./sounds/song1/bass1.mp3',
-					'./sounds/song1/bassX.mp3',
-					'./sounds/song1/bass1.mp3',
-					'./sounds/song1/bassX.mp3',
-					'./sounds/song1/bassX.mp3',
-					'./sounds/song1/bass2.mp3',
-					'./sounds/song1/bass3.mp3',
-					'./sounds/song1/bass4.mp3',
+					'./sounds/song1/pad1.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/pad1.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/padX.mp3',
+					'./sounds/song1/pad1.mp3',
+					'./sounds/song1/padX.mp3',
 				],
-				solution: ['X', '0', 'X', '0', '0', 'X', 'X', 'X'],
+				solution: ['X', '0', '0', 'X', '0', '0', 'X', '0'],
 				soundOn: false,
 			},
 			{
@@ -292,16 +292,16 @@ const levelData = [
 				level: 4,
 				description: 'A dreamy pad?',
 				sample: [
-					'./sounds/song1/pad1.mp3',
-					'./sounds/song1/padX.mp3',
-					'./sounds/song1/padX.mp3',
-					'./sounds/song1/pad1.mp3',
-					'./sounds/song1/padX.mp3',
-					'./sounds/song1/padX.mp3',
-					'./sounds/song1/pad1.mp3',
-					'./sounds/song1/padX.mp3',
+					'./sounds/song1/bass1.mp3',
+					'./sounds/song1/bassX.mp3',
+					'./sounds/song1/bass1.mp3',
+					'./sounds/song1/bassX.mp3',
+					'./sounds/song1/bassX.mp3',
+					'./sounds/song1/bass2.mp3',
+					'./sounds/song1/bass3.mp3',
+					'./sounds/song1/bass4.mp3',
 				],
-				solution: ['X', '0', '0', 'X', '0', '0', 'X', '0'],
+				solution: ['X', '0', 'X', '0', '0', 'X', 'X', 'X'],
 				soundOn: false,
 			},
 		],
@@ -528,18 +528,14 @@ class Metronome {
 	}
 
 	createDomElement() {
-		// step1: create the element
 		this.domElement = document.createElement('div');
 
-		// step2: add content or modify (ex. innerHTML...)
 		this.domElement.id = `metronome`;
 		this.domElement.style.width = this.width + 'vw';
 		this.domElement.style.height = this.height + 'vh';
 		this.domElement.style.left = this.positionX + 'vw';
 		this.domElement.style.bottom = this.positionY + 'vh';
-		//    this.domElement.innerText = `${this.id}`;
 
-		//step3: append to the dom: `parentElm.appendChild()`
 		const parentElm = document.getElementById('board');
 		parentElm.appendChild(this.domElement);
 	}
@@ -604,10 +600,8 @@ class endOfGame {
 	}
 
 	createDomElement() {
-		// step1: create the element
 		this.domElement = document.createElement('div');
 
-		// step2: add content or modify (ex. innerHTML...)
 		this.domElement.id = `start-button`;
 		this.domElement.style.width = this.width + 'vw';
 		this.domElement.style.height = this.height + 'vh';
@@ -615,7 +609,6 @@ class endOfGame {
 		this.domElement.style.bottom = this.positionY + 'vh';
 		this.domElement.innerHTML = `<p>Now go make your own beat.</p>`;
 
-		//step3: append to the dom: `parentElm.appendChild()`
 		const parentElm = document.getElementById('board');
 		parentElm.appendChild(this.domElement);
 		this.domElement.addEventListener('click', () => {
